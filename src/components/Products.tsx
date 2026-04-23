@@ -3,6 +3,8 @@ import { Building2, ClipboardCheck, Cpu, Network, Stethoscope } from 'lucide-rea
 import samsungFireLogo from '../assets/customer-logos/삼성화재.png';
 import samsungLifeLogo from '../assets/customer-logos/삼성생명.png';
 import kqcLogo from '../assets/customer-logos/한국퀀텀컴퓨팅.png';
+import konerLogo from '../assets/customer-logos/한국원자력환경공단.png';
+import yonseiBrLogo from '../assets/customer-logos/연세의료원.png';
 
 const axSteps = [
   {
@@ -143,14 +145,12 @@ const Products: React.FC = () => {
                 {solution.title === 'Insurance AI' && (
                   <>
                     <div className="mt-4 grid grid-cols-2 gap-3">
-                      {[
-                        { name: '삼성생명', src: samsungLifeLogo },
-                        { name: '삼성화재', src: samsungFireLogo },
-                      ].map((logo) => (
-                        <div key={logo.name} className="flex h-16 items-center justify-center rounded-2xl border border-white/10 bg-white p-3">
-                          <img src={logo.src} alt={`${logo.name} logo`} className="max-h-full max-w-full object-contain" loading="lazy" />
-                        </div>
-                      ))}
+                      <div className="flex h-16 items-center justify-center rounded-2xl border border-white/10 bg-white p-3">
+                        <img src={samsungLifeLogo} alt="삼성생명 logo" className="max-h-full max-w-full object-contain" loading="lazy" />
+                      </div>
+                      <div className="flex h-16 items-center justify-center rounded-2xl border border-white/10 bg-white p-3">
+                        <img src={samsungFireLogo} alt="삼성화재 logo" className="max-h-full max-w-full object-contain scale-75" loading="lazy" />
+                      </div>
                     </div>
                     <div className="mt-4 aspect-[920/446] overflow-hidden rounded-2xl border border-white/10 bg-white p-2">
                       <img
@@ -163,14 +163,19 @@ const Products: React.FC = () => {
                   </>
                 )}
                 {solution.title === 'Aged-Care AI' && (
-                  <div className="mt-4 aspect-[920/446] overflow-hidden rounded-2xl border border-white/10 bg-white p-2">
-                    <img
-                      src="/images/aged-care-system.png"
-                      alt="Aged-Care AI system diagram"
-                      className="h-full w-full object-contain"
-                      loading="lazy"
-                    />
-                  </div>
+                  <>
+                    <div className="mt-4 flex h-16 items-center justify-center rounded-2xl border border-white/10 bg-white p-3">
+                      <img src={yonseiBrLogo} alt="연세의료원 logo" className="max-h-full max-w-full object-contain" loading="lazy" />
+                    </div>
+                    <div className="mt-4 aspect-[920/446] overflow-hidden rounded-2xl border border-white/10 bg-white p-2">
+                      <img
+                        src="/images/aged-care-system.png"
+                        alt="Aged-Care AI system diagram"
+                        className="h-full w-full object-contain"
+                        loading="lazy"
+                      />
+                    </div>
+                  </>
                 )}
                 {solution.title === 'Quantum Computing AI' && (
                   <>
@@ -188,6 +193,11 @@ const Products: React.FC = () => {
                   </>
                 )}
                 <p className="mt-5 break-keep text-base leading-8 text-slate-300">{solution.description}</p>
+                {solution.title === 'Public Sector AI' && (
+                  <div className="mt-4 flex h-16 items-center justify-center rounded-2xl border border-white/10 bg-white p-3">
+                    <img src={konerLogo} alt="한국원자력환경공단 logo" className="max-h-full max-w-full object-contain" loading="lazy" />
+                  </div>
+                )}
                 <div className="mt-6 flex flex-wrap gap-2">
                   {solution.tags.map((tag) => (
                     <span
