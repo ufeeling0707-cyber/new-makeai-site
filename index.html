@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MakeAI.cloud - ROI 중심의 실전형 AI 솔루션 파트너</title>
+  <link rel="canonical" href="https://www.makeai.cloud/" />
+  <meta property="og:url" content="https://www.makeai.cloud/" />
+  <meta
+    name="description"
+    content="MakeAI는 기업의 실제 데이터, 문서, 프로세스를 연결하여 운영 가능하고 설명 가능하며 관리 가능한 AI 시스템을 설계·구축합니다."
+  >
+  <meta property="og:title" content="MakeAI.cloud - We Make Your AI" />
+  <meta property="og:description" content="기업의 ROI를 만드는 운영형 AI 솔루션 파트너" />
+  <meta property="og:image" content="/images/makeai-ai-bus.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ai-black': '#0a0a0a',
+            'ai-dark': '#111111',
+            'ai-gray': '#1f1f1f',
+            'neon-blue': '#3b82f6',
+            'neon-purple': '#22d3ee',
+            'neon-pink': '#34d399',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          backgroundImage: {
+            'hero-pattern': "url('/images/hero-bg.png')",
+            'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050505;
+      color: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* Smooth scrolling for anchor links */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    @keyframes marquee {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+
+</html>

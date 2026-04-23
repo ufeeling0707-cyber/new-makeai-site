@@ -1,0 +1,1104 @@
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="_csrf" content=""/>
+    <meta name="_csrf_header" content=""/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>한국원자력환경공단
+        
+        
+    </title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=0,maximum-scale=10"/>
+    <meta name="description" content="한국원자력환경공단">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="한국원자력환경공단">
+    <meta property="og:description" content="한국원자력환경공단 홈페이지 입니다">
+    <meta property="og:image" content="/resources/homepage/korad/img/logo.jpg">
+    <meta property="og:url" content="http://www.korad.or.kr/korad/index.do">
+    <link rel="icon" type="image/x-icon" href="/resources/homepage/korad/img/favicon.ico">
+    
+    
+    
+    
+    
+    
+    <link rel="stylesheet" href="/resources/homepage/korad/css/layout.css">
+    
+    <link rel="stylesheet" href="/resources/homepage/korad/css/main.css"/>
+    <script src="/resources/common/js/jquery-1.12.4.min.js"></script>
+    <script src="/resources/common/js/jquery.mmenu.min.js"></script>
+    
+    <script src="/resources/common/js/jquery-ui-1.12.0.min.js"></script>
+    <script src="/resources/common/js/jquery-ui-1.12.0-datepicker.js"></script>
+    <script src="/resources/common/js/jquery.bxslider.4.2.12.js"></script>
+    <script src="/resources/common/js/slick.js"></script>
+    
+    
+    <script src="/resources/common/js/html5shiv.js"></script>
+    <script src="/resources/common/js/common.js"></script>
+    <script src="/resources/homepage/korad/js/default.js"></script>
+    <script src="/resources/common/js/jquery.rwdImageMaps.js"></script>
+    <script src="/resources/common/js/jquery.rwdImageMaps.min.js"></script>
+    <script src="/resources/common/js/lazyload.min.js"></script>
+</head>
+
+
+<body>
+<script src="/resources/homepage/korad/js/aos.js"></script>
+<script>
+    AOS.init({
+        easing: 'ease-in-out-sine'
+    });
+</script>
+<script src="/resources/homepage/korad/js/main.js"></script>
+<script src="/resources/homepage/korad/js/parallax.js"></script>
+<script>
+    var diagMode = false;
+    var clientTimingRows = [];
+
+    function pushClientTiming(key, elapsedMs, note) {
+        if (!diagMode) {
+            return;
+        }
+
+        clientTimingRows.push({
+            key: key,
+            elapsedMs: elapsedMs,
+            note: note || ''
+        });
+
+        renderClientTimingRows();
+    }
+
+    function renderClientTimingRows() {
+        if (!diagMode) {
+            return;
+        }
+
+        var $tbody = $('#clientTimingBody');
+        if ($tbody.length === 0) {
+            return;
+        }
+
+        if (clientTimingRows.length === 0) {
+            $tbody.html('<tr><td colspan="3">측정 중입니다.</td></tr>');
+            return;
+        }
+
+        var html = '';
+        $.each(clientTimingRows, function (_, row) {
+            html += '<tr>'
+                + '<td>' + escapeHtml(row.key) + '</td>'
+                + '<td class="ms">' + formatDiagNumber(row.elapsedMs) + '</td>'
+                + '<td>' + escapeHtml(row.note) + '</td>'
+                + '</tr>';
+        });
+        $tbody.html(html);
+    }
+
+    function formatDiagNumber(value) {
+        return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    $(function () {
+        divToFit();
+
+        $(window).resize(function () {
+            divToFit();
+        });
+
+        $('img').addClass('lazy');
+
+        $('img').each(function () {
+            $(this).attr('data-src', $(this).attr('src'));
+            $(this).removeAttr('src');
+        });
+
+        $('.lazy').lazyload();
+
+        var popupStartedAt = performance.now();
+        $('div.popupLayer').load('/korad/popupList.do', function (response, status) {
+            pushClientTiming('client.popupList.load', performance.now() - popupStartedAt,
+                status === 'success' ? '팝업 레이어 AJAX 응답 완료' : '팝업 레이어 AJAX 실패: ' + status);
+        }); // 팝업
+        // $('div.main3').load('webzineList.do'); // 홍보 웹진, 영상, 웹툰
+        // $('div.main2-rightBox').load('quickMenuList.do'); //퀵메뉴
+        var bannerStartedAt = performance.now();
+        $('div.main5-right-box').load('/korad/bannerList.do', function (response, status) {
+            pushClientTiming('client.bannerList.load', performance.now() - bannerStartedAt,
+                status === 'success' ? '배너/팝업존 AJAX 응답 완료' : '배너/팝업존 AJAX 실패: ' + status);
+        }); // 배너, 팝업존
+
+        var youtubeStartedAt = performance.now();
+
+        
+        
+        
+        
+
+
+        if (diagMode) {
+            var briefingStartedAt = performance.now();
+            $('.main__briefing')
+                .on('load', function () {
+                    pushClientTiming('client.briefing.iframe', performance.now() - briefingStartedAt,
+                        '정책브리핑 iframe load 이벤트 완료');
+                })
+                .on('error', function () {
+                    pushClientTiming('client.briefing.iframe', performance.now() - briefingStartedAt,
+                        '정책브리핑 iframe 로드 실패');
+                });
+        }
+
+        // koradQuickMenu
+        $('.koradQuickMenu a').on('click', function (e) {
+            e.preventDefault();
+            $('html, body').animate({scrollTop: $(this.hash).offset().top - 73}, 400);
+            $(".koradQuickMenu a").not($(this)).removeClass('current');
+            $(this).addClass('current');
+        });
+    });
+
+    function divToFit() {
+        var $body = $(this.ie6 ? document.body : document);
+        var $html = $(window).height();
+        $('.box').css({
+            height: $html
+        });
+    }
+</script>
+
+<div class="popupWrap">
+    <div class="popupLayer"></div>
+</div>
+
+<a href="#container" class="skip-to">본문 바로가기</a>
+<a href="#gnbMenu" class="skip-to">주메뉴 바로가기</a>
+
+
+
+
+
+
+
+<div id="header" class="header">
+	<h1 class="logo">
+		<a href="/korad/index.do">
+			<img src="/resources/homepage/korad/img/logo.png" alt="한국원자력환경공단" />
+		</a>
+	</h1>
+	
+	<div id="gnbWrap">
+		<div class="gnbMenu" id="gnbMenu">
+			<div class="gnb-menu">
+<div class="List Depth1 m_li"><a href="/korad/board/index.do?menu_idx=54&manage_idx=22" data-menukey="3"><span>알림마당</span></a>
+<div class="SubMenu"><p><span class='blind'>국민이 신뢰하는 방폐물 관리 선도기관</span></p>
+<div class="Depth2 m_li"><a href="/korad/board/index.do?menu_idx=54&manage_idx=22" data-menukey="54" class="depth2_a">공지사항</a></div>
+<div class="Depth2 m_li"><a href="/korad/board/index.do?menu_idx=56&manage_idx=24" data-menukey="56" class="depth2_a">보도자료</a></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=184" data-menukey="58" class="depth2_a">채용정보</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=184" data-menukey="184">KORAD 인재상</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=323" data-menukey="322">채용 · 인사 제도</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=323" data-menukey="323">채용원칙</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=324" data-menukey="324">채용직무</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=436" data-menukey="436">인사제도</a></div></div></div>
+<div class="Depth3 m_li"><a href="" data-menukey="437">채용공고</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=438&manage_idx=26" data-menukey="438">채용공고</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=439&manage_idx=167" data-menukey="439">인사혁신처 소식</a></div></div></div>
+<div class="Depth3 m_li"><a href="" data-menukey="431">KORAD NAVI</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=432" data-menukey="432">플랫폼 개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=433" data-menukey="433">직무 정보</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=434&manage_idx=166" data-menukey="434">About KORAD</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=435&manage_idx=165" data-menukey="435">지원가이드</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=187&manage_idx=28" data-menukey="187">채용Q&A</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=188&manage_idx=29" data-menukey="188">채용정보 알림신청</a></div></div></div>
+<div class="Depth2 m_li"><a href="https://www.g2b.go.kr/pt/menu/selectSubFrame.do?framesrc=/pt/menu/frameTgong.do?url=https://www.g2b.go.kr:8101/ep/tbid/tbidList.do?taskClCds=&bidNm=&searchDtType=1&fromBidDt=2024/01/01&toBidDt=2024/06/30&fromOpenBidDt=&toOpenBidDt=&radOrgan=1&instNm=%C7%D1%B1%B9%BF%F8%C0%DA%B7%C2%C8%AF%B0%E6%B0%F8%B4%DC&area=&regYn=Y&bidSearchType=1&searchType=1" data-menukey="59" target="_blank" class="depth2_a"><span>입찰정보</span></a>
+<div>
+<div class="Depth3 m_li"><a href="https://www.g2b.go.kr/link//FIUA006_01/single/?untySrchSeCd=BK+BUK&rowCnt=&instCd=B553023&demaInstNm=&hghrkInstCd=&prcmBsneAreaCd=%EC%A0%84%EC%B2%B4+%EC%A1%B0070001+%EC%A1%B0070002+%EC%A1%B0070003+%EC%A1%B0070004+%EC%A1%B0070005&prcmMthoSeCd=&frcpYn=N&laseYn=N&rsrvYn=N&chkInstCd=&urlSrchSeCd=instCd&demaInstCd=IN0100000062862&prcmMaagSeCd=" data-menukey="352" target="_blank"><span>입찰정보</span></a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=390" data-menukey="57" class="depth2_a">공급업체 등록</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=390" data-menukey="390">평가 및 등록관리 절차</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=391&manage_idx=25" data-menukey="391">등록관리 게시판</a></div></div></div></div></div>
+<div class="List Depth1 m_li"><a href="/korad/html.do?menu_idx=144" data-menukey="2"><span>방폐물 관리사업</span></a>
+<div class="SubMenu"><p><span class='blind'>국민이 신뢰하는 방폐물 관리 선도기관</span></p>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=144" data-menukey="20" class="depth2_a">고준위방폐물 관리</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=144" data-menukey="24">고준위방폐물이란</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=144" data-menukey="144">정의</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=145" data-menukey="145">특성</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=146" data-menukey="146">발생원</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=147" data-menukey="25">국내외정책</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=147" data-menukey="147">관리방안</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=148" data-menukey="148">국내정책</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=149" data-menukey="149">국외정책</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=52&manage_idx=10" data-menukey="26">정보광장</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=52&manage_idx=10" data-menukey="52">책자</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=53&manage_idx=11" data-menukey="53">영상</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=236&manage_idx=99" data-menukey="236">해외동향</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=30&manage_idx=12" data-menukey="29">자료광장</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=30&manage_idx=12" data-menukey="30">분야기본자료</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=31&manage_idx=13" data-menukey="31">정책관련자료</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=421&manage_idx=162" data-menukey="421">URL관련자료</a></div></div></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=150" data-menukey="21" class="depth2_a">중저준위방폐물 관리</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=150" data-menukey="33">개요</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=150" data-menukey="150">정의</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=151" data-menukey="151">기본정책</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=152" data-menukey="152">처분방식</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=153" data-menukey="153">운반/처분절차</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=34&manage_idx=15" data-menukey="34">방폐장운영</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=154" data-menukey="35">방폐장건설 1단계</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=154" data-menukey="154">사업개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=155" data-menukey="155">추진경위</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=156" data-menukey="156">추진실적</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=157" data-menukey="133">방폐장건설 2단계</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=157" data-menukey="157">사업개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=158" data-menukey="158">추진일정</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=159" data-menukey="159">추진실적</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=122&manage_idx=16" data-menukey="36">방폐물운반</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=122&manage_idx=16" data-menukey="122">운반정보</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=123&manage_idx=17" data-menukey="123">운반실적</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=124" data-menukey="39">RI폐기물 관리</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=124" data-menukey="124">개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=125&manage_idx=18" data-menukey="125">인수의뢰 QnA</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=358&manage_idx=147" data-menukey="358">인수의뢰 서류접수</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=126&manage_idx=19" data-menukey="126">RI게시판</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=127&manage_idx=36" data-menukey="127">FAQ</a></div></div></div>
+<div class="Depth3 m_li"><a href="" data-menukey="413">방폐물 인수의뢰 절차</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=414" data-menukey="414">개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=415&manage_idx=160" data-menukey="415">방폐물 특성정보 작성 Q&A</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=276&manage_idx=125" data-menukey="275">인수기준</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=276&manage_idx=125" data-menukey="276">동굴처분시설 인수기준</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=277&manage_idx=126" data-menukey="277">표층처분시설 인수기준</a></div></div></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=160" data-menukey="22" class="depth2_a">지역지원사업</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=160" data-menukey="160">유치지역지원사업</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=161" data-menukey="161">관리사업자지원사업</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=162&manage_idx=21" data-menukey="162">관리사업자지원사업 추진실적</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=163" data-menukey="23" class="depth2_a">자료실</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=163" data-menukey="48">히스토리</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=163" data-menukey="163">관리정책연혁</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=164" data-menukey="164">부지선정 과정(중저준위)</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=49" data-menukey="49">법령</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=50" data-menukey="50">해외자료</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=80" data-menukey="79" class="depth2_a">기술이전</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=80" data-menukey="80">기술이전 소개 및 신청 안내</a></div>
+<div class="Depth3 m_li"><a href="" data-menukey="425">보유기술 소개</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=426" data-menukey="426">게시판 소개</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=427&manage_idx=163" data-menukey="427">이전기술 소개</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=428&manage_idx=164" data-menukey="428">미활용 특허 소개</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=216&manage_idx=68" data-menukey="216">기술지원 게시판</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=290" data-menukey="291" class="depth2_a">RI 불용선원 재활용 플랫폼</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=290" data-menukey="290">사업개요</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=293" data-menukey="293">추진방향</a></div>
+<div class="Depth3 m_li"><a href="/korad/module/rIUselessSource/index.do?menu_idx=311" data-menukey="311">재활용 신청</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=312&manage_idx=131" data-menukey="312">RI 불용선원 Q&A</a></div>
+<div class="Depth3 m_li"><a href="/korad/module/rIUselessSource/view.do?menu_idx=313" data-menukey="313">신청 현황</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=314&manage_idx=132" data-menukey="314">RI 불용선원 목록</a></div></div></div></div></div>
+<div class="List Depth1 m_li"><a href="/korad/html.do?menu_idx=267" data-menukey="4"><span>국민참여</span></a>
+<div class="SubMenu"><p><span class='blind'>국민이 신뢰하는 방폐물 관리 선도기관</span></p>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=383" data-menukey="383" class="depth2_a">방사선 대외 서비스</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=384" data-menukey="384">사업개요</a></div>
+<div class="Depth3 m_li"><a href="" data-menukey="388">방사선 측정 서비스</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=267" data-menukey="267">사업개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/module/radiologicalMeasuring/index.do?menu_idx=268" data-menukey="268">서비스 신청</a></div>
+<div class="Depth4 m_li active"><a href="/korad/module/radiologicalMeasuring/map.do?menu_idx=271" data-menukey="271">결과 맵지도</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=385" data-menukey="385">장비대여 서비스</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=386" data-menukey="386">환경조사 정보공개 서비스</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=269&manage_idx=124" data-menukey="269">Q&A 게시판</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=387&manage_idx=150" data-menukey="387">서비스 이용후기</a></div>
+<div class="Depth3 m_li"><a href="/korad/module/radiologicalMeasuring/view.do?menu_idx=270" data-menukey="270">결과 게시판</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=398" data-menukey="396" class="depth2_a">부지조사 장비대여 서비스</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=398" data-menukey="397">개요</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=398" data-menukey="398">사업개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=399" data-menukey="399">서비스개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=400" data-menukey="400">기대효과</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=401" data-menukey="401">장비대여 서비스</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=402" data-menukey="402">부지조사 장비 목록</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=403&manage_idx=155" data-menukey="403">Q&A 게시판</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=404&manage_idx=156" data-menukey="404">서비스 이용 후기</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=338" data-menukey="336" class="depth2_a">국민제안</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=338" data-menukey="337">개요</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=338" data-menukey="338">국민제안 소개</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=339" data-menukey="339">업무처리 절차 및 제안 양식</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=340&manage_idx=138" data-menukey="340">국민제안</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=169" data-menukey="170" class="depth2_a">민원접수</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=169" data-menukey="71">이용안내</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=169" data-menukey="169">민원접수 처리절차</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=171" data-menukey="171">신고자 보호안내</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=172" data-menukey="172">신고자 보상안내</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=73&manage_idx=34" data-menukey="73">민원접수</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=222" data-menukey="66" class="depth2_a">신고센터</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=222" data-menukey="68">예산낭비신고</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=222" data-menukey="222">예산낭비신고안내</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=221&manage_idx=89" data-menukey="221">예산낭비신고접수</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=69" data-menukey="224">안전 및 재난관리 신고·제안</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=69" data-menukey="69">안전 및 재난관리 신고·제안 안내</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=223&manage_idx=90" data-menukey="223">안전 및 재난관리 신고·제안 접수</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=173" data-menukey="70">채용비리신고</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=173" data-menukey="173">신고접수 처리절차</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=174" data-menukey="174">채용비리신고 관련규정</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=175" data-menukey="175">신고자 보호/보상안내</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=75&manage_idx=35" data-menukey="75">채용비리신고접수</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=228" data-menukey="226">갑질피해신고</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=228" data-menukey="228">갑질피해신고안내</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=227&manage_idx=94" data-menukey="227">갑질피해신고접수</a></div></div></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=261" data-menukey="260" class="depth2_a">규제입증요청</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=261" data-menukey="261">개요</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=262&manage_idx=120" data-menukey="262">RI 방폐물 관리</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=263&manage_idx=121" data-menukey="263">방폐물 사업</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=264&manage_idx=122" data-menukey="264">지원 사업</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/module/facilityRequest/main.do?menu_idx=18" data-menukey="15" class="depth2_a">시설물 이용</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=382" data-menukey="382">이용신청 안내</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/board/index.do?menu_idx=78&manage_idx=37" data-menukey="315" class="depth2_a">Q & A</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=77&manage_idx=20" data-menukey="77">자주 하는 질문</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=78&manage_idx=37" data-menukey="78">묻고 답하기</a></div></div></div></div></div>
+<div class="List Depth1 m_li"><a href="/korad/html.do?menu_idx=217" data-menukey="7"><span>환경·사회·투명 경영</span></a>
+<div class="SubMenu"><p><span class='blind'>국민이 신뢰하는 방폐물 관리 선도기관</span></p>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=217" data-menukey="316" class="depth2_a">E ESG 경영</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=217" data-menukey="217">전략체계도/추진체계</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=320&manage_idx=133" data-menukey="320">ESG리포트</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=98" data-menukey="317" class="depth2_a">E 환경경영</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=98" data-menukey="98">환경경영방침</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=325&manage_idx=134" data-menukey="325">환경리포트</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=235" data-menukey="318" class="depth2_a">S 안전보건경영</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=235" data-menukey="235">안전보건경영방침</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=366" data-menukey="354">안전보건경영시스템</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=366" data-menukey="366">ISO45001 인증서</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=367" data-menukey="367">안전보건관리 조직체계</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=368" data-menukey="368">안전보건 공생협력 프로그램</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=355" data-menukey="355">공공기관 안전관리 등급</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=356" data-menukey="356">산업재해 및 안전사고 현황</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=218&manage_idx=97" data-menukey="218">안전보건활동</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=357&manage_idx=145" data-menukey="357">자료실</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=177" data-menukey="96" class="depth2_a">S 사회공헌</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=177" data-menukey="177">전략체계</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=178" data-menukey="178">행동강령</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=179&manage_idx=47" data-menukey="179">사진첩</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=274" data-menukey="97" class="depth2_a">S 동반성장</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=274" data-menukey="274">기업민원 헌장</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=392&manage_idx=151" data-menukey="392">해외진출 지원</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=182&manage_idx=49" data-menukey="182">공지사항</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=183&manage_idx=50" data-menukey="183">기업성장응답센터</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=376" data-menukey="376">장비대여</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=104" data-menukey="94" class="depth2_a">G 윤리.준법경영</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=373" data-menukey="373">개요</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=378" data-menukey="378">윤리경영 철학</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=379" data-menukey="379">윤리경영 체계도</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=380" data-menukey="380">윤리경영 추진조직</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=381" data-menukey="381">윤리경영 로드맵</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=328" data-menukey="105">행동기준</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=375" data-menukey="375">윤리헌장</a></div>
+<div class="Depth4 m_li active"><a href="https://alio.go.kr/item/itemBoard21110.do?disclosureNo=null&apbaId=C0371&nowcode=21110&reportFormNo=21110&table_name=COMM_RULE&idx_name=RULE_NO&idx=7782&reportGbn=N&bid_type=K1100" data-menukey="374" target="_blank">윤리규정</a></div>
+<div class="Depth4 m_li active"><a href="https://alio.go.kr/item/itemBoard21110.do?disclosureNo=null&apbaId=C0371&nowcode=21110&reportFormNo=21110&table_name=COMM_RULE&idx_name=RULE_NO&idx=7777&reportGbn=N&bid_type=K1100" data-menukey="330" target="_blank">임직원행동강령</a></div>
+<div class="Depth4 m_li active"><a href="https://alio.go.kr/item/itemBoard21110.do?disclosureNo=null&apbaId=C0371&nowcode=21110&reportFormNo=21110&table_name=COMM_RULE&idx_name=RULE_NO&idx=45331&reportGbn=N&bid_type=K1400" data-menukey="331" target="_blank">공익신고처리지침</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=333&manage_idx=136" data-menukey="106">활동소식</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=333&manage_idx=136" data-menukey="333">윤리경영 자료실</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=289&manage_idx=128" data-menukey="289">갑질행위 처분사례</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=286" data-menukey="285">공정거래 자율준수</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=286" data-menukey="286">CP 개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=287" data-menukey="287">CEO 메시지</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=288&manage_idx=127" data-menukey="288">CP 자료실</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=319" data-menukey="326">인권경영</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=319" data-menukey="319">개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=377" data-menukey="377">구제절차</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=327&manage_idx=135" data-menukey="327">자료실</a></div></div></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=107" data-menukey="95" class="depth2_a">G 반부패청렴</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=364" data-menukey="364">부패방지방침</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=107" data-menukey="107">청렴시민감사관</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=108&manage_idx=45" data-menukey="108">활동실적</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=109&manage_idx=46" data-menukey="109">부패행위자 현황</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=110" data-menukey="110">종합청렴도 평가결과</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=246" data-menukey="246">안심신고</a></div>
+<div class="Depth3 m_li"><a href="https://ncp.clean.go.kr/cmn/secCtfcKMC.do?menuCode=acs&mapAcs=Y&insttCd=B553023" data-menukey="347" target="_blank"><span>청렴포털 부패공익신고</span></a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=310" data-menukey="309" class="depth2_a">G 혁신성장</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=310" data-menukey="310">열린혁신플랫폼 개요</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=300" data-menukey="296">테스트베드</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=300" data-menukey="300">테스트베드 사업 개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=301" data-menukey="301">테스트베드 적용가능 시설</a></div>
+<div class="Depth4 m_li active"><a href="/korad/module/testBedReq/index.do?menu_idx=302" data-menukey="302">서비스신청</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=303&manage_idx=130" data-menukey="303">Q&A 게시판</a></div></div></div>
+<div class="Depth3 m_li"><a href="https://www.korad.or.kr/korad/board/index.do?menu_idx=238&manage_idx=110" data-menukey="297">기술이전</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=305" data-menukey="305">Your KORAD Tech 안내</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=306" data-menukey="298">기술보호</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=306" data-menukey="306">기술보호(임치제도) 안내</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=307&manage_idx=53" data-menukey="299">국민참여 혁신</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=307&manage_idx=53" data-menukey="307">국민 알림이</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=308&manage_idx=119" data-menukey="308">국민 생각함(과제공모)</a></div></div></div></div></div></div></div>
+<div class="List Depth1 m_li"><a href="/korad/html.do?menu_idx=113" data-menukey="8"><span>청정누리 공원</span></a>
+<div class="SubMenu"><p><span class='blind'>국민이 신뢰하는 방폐물 관리 선도기관</span></p>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=113" data-menukey="113" class="depth2_a">소개</a></div>
+<div class="Depth2 m_li"><a href="/korad/board/step1.do?manage_idx=54&menu_idx=114" data-menukey="114" class="depth2_a">방문신청</a></div>
+<div class="Depth2 m_li"><a href="/korad/board/index.do?menu_idx=115&manage_idx=54" data-menukey="115" class="depth2_a">방문신청확인</a></div>
+<div class="Depth2 m_li"><a href="https://www.korad.or.kr/korad/module/facilityRequest/main.do?menu_idx=371" data-menukey="370" class="depth2_a">코라디움 시설물 이용</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/module/facilityRequest/main.do?menu_idx=371" data-menukey="371">대관신청</a></div>
+<div class="Depth3 m_li"><a href="/korad/module/facilityRequest/index.do?menu_idx=372" data-menukey="372">대관신청확인</a></div></div></div></div></div>
+<div class="List Depth1 m_li"><a href="/korad/html.do?menu_idx=135" data-menukey="6"><span>경영공시</span></a>
+<div class="SubMenu"><p><span class='blind'>국민이 신뢰하는 방폐물 관리 선도기관</span></p>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=135" data-menukey="250" class="depth2_a">기금정보</a>
+<div>
+<div class="Depth3 m_li"><a href="" data-menukey="135">기금운용</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=362" data-menukey="362">기금개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=361" data-menukey="361">기금운용체계</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=360" data-menukey="360">기금조성현황</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=359" data-menukey="359">재무제표</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=334" data-menukey="136">자산운용</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=334" data-menukey="334">자산운용개요</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=211&manage_idx=64" data-menukey="211">자산운용계획</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=239&manage_idx=65" data-menukey="239">자산운용성과</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=335" data-menukey="335">자산운용지침 및 기준</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=213&manage_idx=60" data-menukey="213">기금운용평가</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=100" data-menukey="93" class="depth2_a">경영공시</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=100" data-menukey="100">공시항목</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=103&manage_idx=43" data-menukey="103">국외출장 계획 및 보고</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=284" data-menukey="138">자율공시</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=284" data-menukey="284">방사선환경조사보고서</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=281&manage_idx=62" data-menukey="281">임원추천위원회</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=282&manage_idx=111" data-menukey="282">친인척 채용현황</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=353&manage_idx=140" data-menukey="353">비상임이사 활동내용</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=393&manage_idx=152" data-menukey="393">온누리상품권 구매·배부</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=394&manage_idx=153" data-menukey="394">지식재산권 등록</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=395&manage_idx=154" data-menukey="395">성희롱/폭력 예방교육</a></div></div></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=130" data-menukey="99" class="depth2_a">사규 및 법령</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=130" data-menukey="111">사규 및 법령</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=130" data-menukey="130">법령</a></div>
+<div class="Depth4 m_li active"><a href="https://alio.go.kr/item/itemOrganList.do?apbaId=C0371&reportFormRootNo=21110" data-menukey="422" target="_blank">사규</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=112&manage_idx=52" data-menukey="112">사규 예고</a></div></div></div></div></div>
+<div class="List Depth1 m_li"><a href="/korad/html.do?menu_idx=206" data-menukey="5"><span>정보공개</span></a>
+<div class="SubMenu"><p><span class='blind'>국민이 신뢰하는 방폐물 관리 선도기관</span></p>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=206" data-menukey="82" class="depth2_a">정보공개제도</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=206" data-menukey="206">제도소개</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=207" data-menukey="207">절차 및 방법</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=209" data-menukey="209">비공개 대상정보 세부기준</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=210" data-menukey="210">관련법령 및 서식</a></div></div></div>
+<div class="Depth2 m_li"><a href="" data-menukey="429" class="depth2_a">사전정보공표</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=83&manage_idx=38" data-menukey="83">전체 항목 보기</a></div>
+<div class="Depth3 m_li"><a href="https://www.korad.or.kr/korad/board/index.do?menu_idx=83&manage_idx=38&board_idx=0&homepage_id=h2&category1=111&sortType=ASC&imsi_v_6=Y&editMode=ADD&parent_idx=0&search_type=all&sortField=TITLE&rowCount=10&viewPage=1" data-menukey="430">즐겨찾는 항목</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/module/informationList/index.do?menu_idx=84" data-menukey="84" class="depth2_a">정보목록</a></div>
+<div class="Depth2 m_li"><a href="https://www.open.go.kr/" data-menukey="85" target="_blank" class="depth2_a"><span>정보공개청구</span></a></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=420" data-menukey="86" class="depth2_a">공공데이터</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=420" data-menukey="420">제도 소개</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=419" data-menukey="419">제공 현황</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=417" data-menukey="417">제공 신청</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=416" data-menukey="416">오류 신청</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=418" data-menukey="418">개선 의견</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/board/index.do?menu_idx=87&manage_idx=41" data-menukey="87" class="depth2_a">사업실명제</a></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=349" data-menukey="348" class="depth2_a">원자력안전 정보공개</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=350&manage_idx=139" data-menukey="350">원자력안전 정보 모음</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=349" data-menukey="349">비공개 세부기준</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=365&manage_idx=149" data-menukey="365">원자력안전정보 목록</a></div></div></div></div></div>
+<div class="List Depth1 m_li"><a href="/korad/html.do?menu_idx=406" data-menukey="1"><span>KORAD 소개</span></a>
+<div class="SubMenu"><p><span class='blind'>국민이 신뢰하는 방폐물 관리 선도기관</span></p>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=406" data-menukey="9" class="depth2_a">이사장 소개</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=406" data-menukey="405">인사말</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=406" data-menukey="406">인사말</a></div>
+<div class="Depth4 m_li active"><a href="/korad/html.do?menu_idx=407" data-menukey="407">프로필</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=409&manage_idx=157" data-menukey="408">이사장을 알려드립니다</a>
+<div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=409&manage_idx=157" data-menukey="409">언론보도</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=410&manage_idx=158" data-menukey="410">이렇게 생각합니다</a></div>
+<div class="Depth4 m_li active"><a href="/korad/board/index.do?menu_idx=411&manage_idx=159" data-menukey="411">활동사진 및 영상</a></div></div></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=412" data-menukey="412">역대 이사장</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=10" data-menukey="10" class="depth2_a">연혁</a></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=11" data-menukey="11" class="depth2_a">비전 및 경영전략</a></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=12" data-menukey="12" class="depth2_a">사업소개</a></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=13" data-menukey="13" class="depth2_a">조직도</a></div>
+<div class="Depth2 m_li"><a href="/korad/board/index.do?menu_idx=61&manage_idx=32" data-menukey="60" class="depth2_a">홍보자료</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=61&manage_idx=32" data-menukey="61">홍보영상</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=195&manage_idx=77" data-menukey="195">홍보책자</a></div>
+<div class="Depth3 m_li"><a href="/korad/board/index.do?menu_idx=220&manage_idx=78" data-menukey="220">누리잡지(웹진)</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=64" data-menukey="64">기관 상징(CI) 소개</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=165" data-menukey="65" class="depth2_a">고객헌장</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=165" data-menukey="165">고객서비스헌장</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=166" data-menukey="166">원전 폐기물 처리·처분</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=167" data-menukey="167">RI 폐기물 처리·처분</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=168" data-menukey="168">처분시설 건설 관리</a></div></div></div>
+<div class="Depth2 m_li"><a href="/korad/html.do?menu_idx=229" data-menukey="14" class="depth2_a">찾아오시는 길</a>
+<div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=229" data-menukey="229">본사</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=230" data-menukey="230">중저준위사업본부</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=231" data-menukey="231">고준위기술개발원</a></div>
+<div class="Depth3 m_li"><a href="/korad/html.do?menu_idx=232" data-menukey="232">기금관리센터</a></div></div></div></div></div></div>
+
+		</div>
+	</div>
+	
+	<div class="util">
+
+		<a href="/korad-eng/index.do" title="코라드 영문페이지로 이동">ENG</a>
+		<a href="/korad/homepageSearch/index.do?menu_idx=142" title="통합검색 페이지로 이동">
+			<span>통합검색</span>
+			<img src="/resources/homepage/korad/img/btn_search.png" alt="검색" />
+		</a>
+		<a href="/korad/sitemap/index.do?menu_idx=197" title="사이트맵 페이지로 이동">
+			<img src="/resources/homepage/korad/img/btn_sitemap.png" alt="사이트맵" />
+		</a>
+	</div>
+	
+	<!-- 모바일 메뉴 -->
+	<div class="mmode m-menu">
+		<a href="/korad-eng/index.do" title="코라드 영문페이지로 이동" class="mobileEng">ENG</a>
+		<a href="#mobileMenu">
+			<img src="/resources/homepage/korad/img/navi.png" alt="모바일메뉴 열기" />
+		</a>
+	</div>
+	
+	<nav id="mobileMenu"></nav>
+</div>
+
+
+
+<div id="container" class="wrapper">
+    <section class="main__visual__wrapper">
+        <div class="main__visual__slider">
+            <div class="main__visual__item">
+                <div class="main_slide_thumb" style="background-image: url(/resources/homepage/korad/img/new_main_bg1.jpg)">
+                    <p class="blind">방폐물관리 연차보고대회</p>
+                </div>
+            </div>
+            <div class="main__visual__item">
+                <div class="main_slide_thumb" style="background-image: url(/resources/homepage/korad/img/new_main_bg2.jpg)">
+                    <p class="blind">원자력환경공단 전경</p>
+                </div>
+            </div>
+            <div class="main__visual__item">
+                <div class="main_slide_thumb" style="background-image: url(/resources/homepage/korad/img/new_main_bg3.jpg)">
+                    <p class="blind">방폐물 운반</p>
+                </div>
+            </div>
+        </div>
+        <div class="main__search__wrapper">
+            <strong class="main__visual__slogan">국민이 신뢰하는<span>&nbsp;</span> 방폐물 관리 선도기관</strong>
+            <form action="/korad/homepageSearch/index.do" method="get">
+                <input type="hidden" name="viewPage" value="1"/>
+                <input type="hidden" name="menu_idx" value="142"/>
+
+                <div class="main__search__item">
+                    <h2 class="blind">통합검색</h2>
+                    <label for="sortField" class="sr-only">통합검색 선택</label>
+                    <select name="sortField" id="sortField" title="통합검색 선택">
+                        <option value="add_date">통합검색</option>
+                    </select>
+                    <label for="search_text" class="sr-only">검색어</label>
+                    <input type="text" name="search_text" id="search_text" title="통합검색 키워드입력">
+                    <button type="submit" class="main__search__btn" title="검색">
+                        <span class="blind">검색</span>
+                    </button>
+                </div>
+            </form>
+            <div class="main__keyword__wrapper">
+                <h3 class="main__keyword__title">
+                    <span>즐겨찾는 메뉴</span>
+                </h3>
+                <div class="main__keyword__items">
+                    <a href="/korad/board/index.do?menu_idx=83&manage_idx=38"
+                       class="main__keyword__item">사전정보공표</a>
+                    <a href="/korad/board/index.do?menu_idx=77&manage_idx=20"
+                       class="main__keyword__item">자주하는질문</a>
+                    <a href="/korad/board/index.do?menu_idx=125&manage_idx=18"
+                       class="main__keyword__item">인수의뢰</a>
+                    <a href="/korad/board/index.do?menu_idx=126&manage_idx=19"
+                       class="main__keyword__item">RI게시판</a>
+                    <a href="/korad/board/index.do?menu_idx=34&manage_idx=15"
+                       class="main__keyword__item">방폐장운영</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="main__quick__wrapper">
+        <div class="main__quick">
+            <div class="main__quick__menu">
+                <a href="/korad/board/index.do?menu_idx=421&manage_idx=162" title="바로가기" class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_16.png" alt="URL 관련자료">
+                    <em>URL<br>관련자료</em>
+                </a>
+            </div>
+            <div class="main__quick__menu">
+                <a href="/korad/board/index.do?menu_idx=34&manage_idx=15" title="바로가기"
+                   class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_1.png" alt="방페물 인수처분량">
+                    <em>방폐물<br>인수처분량</em>
+                </a>
+            </div>
+            <div class="main__quick__menu">
+                <a href="/korad/html.do?menu_idx=267" title="바로가기" class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_2.png" alt="방사선 측정서비스">
+                    <em>방사선<br>측정서비스</em>
+                </a>
+            </div>
+            <div class="main__quick__menu">
+                <a href="/korad/html.do?menu_idx=124" title="바로가기" class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_3.png" alt="RI폐기물 인수의뢰">
+                    <em>RI폐기물<br>인수의뢰</em>
+                </a>
+            </div>
+            <div class="main__quick__menu">
+                <a href="/korad/html.do?menu_idx=398" title="바로가기" class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_12.png" alt="부지조사 장비 대여 서비스">
+                    <em>부지조사 장비<br>대여 서비스</em>
+                </a>
+            </div>
+            <div class="main__quick__menu">
+                <a href="/korad/html.do?menu_idx=80" title="바로가기"
+                   class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_5.png" alt="기술이전">
+                    <em>기술이전</em>
+                </a>
+            </div>
+            <div class="main__quick__menu">
+                <a href="/korad/board/index.do?menu_idx=183&manage_idx=50" title="바로가기"
+                   class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_6.png" alt="기업성장 응답센터">
+                    <em>기업성장<br>응답센터</em>
+                </a>
+            </div>
+            <div class="main__quick__menu">
+                <a href="/korad/board/step1.do?manage_idx=54&menu_idx=114" title="바로가기"
+                   class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_7.png" alt="방폐장 방문신청">
+                    <em>방폐장<br>방문신청</em>
+                </a>
+            </div>
+            
+            <!-- remoteAddr: 203.229.182.180 -->
+            
+                
+                
+                    
+                
+            
+            <div class="main__quick__menu">
+                <a href="http://121.151.154.60/w_5.asp" title="새창열림" target="_blank" class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_8.png" alt="방폐장 주변 방사선량">
+                    <em>방폐장 주변<br>방사선량</em>
+                </a>
+            </div>
+            <div class="main__quick__menu">
+                <a href="http://iernet.kins.re.kr/" title="새창열림" target="_blank" class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_9.png" alt="전국방사선량">
+                    <em>전국방사선량</em>
+                </a>
+            </div>
+            <div class="main__quick__menu">
+                <a href="https://www.korad.or.kr/korad/html.do?menu_idx=349" title="원자력안전 정보공개 새창열림" target="_blank"
+                   class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_npinfo.png" alt="원자력안전 정보공개">
+                    <em>원자력안전<br> 정보공개</em>
+                </a>
+            </div>
+            <div class="main__quick__menu">
+                <a href="/korad/board/index.do?menu_idx=61&manage_idx=32" title="바로가기"
+                   class="main__quick__item">
+                    <img src="/resources/homepage/korad/img/quick_11.png" alt="홍보영상">
+                    <em>홍보영상</em>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="main__board__wrapper">
+        <div class="body_notice">
+            <h2 class="body_notice_title">보도자료</h2>
+            <ul>
+                
+                    <li>
+                        <a href="/korad/board/view.do?manage_idx=24&board_idx=1331585&menu_idx=56"
+                           title="원자력환경공단, 양·한방 난임 토크콘서트 개최">원자력환경공단, 양·한방 난임 토크콘서트 개최
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/korad/board/view.do?manage_idx=24&board_idx=1331552&menu_idx=56"
+                           title="원자력환경공단, 경주벚꽃마라톤 참가해 시민과 소통">원자력환경공단, 경주벚꽃마라톤 참가해 시민과 소통
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/korad/board/view.do?manage_idx=24&board_idx=1331551&menu_idx=56"
+                           title="원자력환경공단, 흥무로 벚꽃길에서 &amp;#39;벚꽃엔딩 피크닉&amp;#39; 개최">원자력환경공단, 흥무로 벚꽃길에서 &amp;#39;벚꽃엔딩 피크닉&amp;#39; 개최
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/korad/board/view.do?manage_idx=24&board_idx=1331397&menu_idx=56"
+                           title="원자력환경공단, 한국암반공학회와 업무협약 체결">원자력환경공단, 한국암반공학회와 업무협약 체결
+                        </a>
+                    </li>
+                
+                
+            </ul>
+            <a href="/korad/board/index.do?menu_idx=56&manage_idx=24" class="body_notice_btn" title="보도자료 더보기">
+                <img src="/resources/homepage/korad/img/main_more.png" alt="plus">
+            </a>
+        </div>
+        <div class="body_notice">
+            <h2 class="body_notice_title">공지사항</h2>
+            <ul>
+                
+                    <li>
+                        <a href="/korad/board/view.do?manage_idx=22&board_idx=1331598&menu_idx=54"
+                           title="KORAD 대국민 서비스 아이디어 공모">
+                            KORAD 대국민 서비스 아이디어 공모
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/korad/board/view.do?manage_idx=22&board_idx=1331584&menu_idx=54"
+                           title="녹색대전환 국제주간 홍보">
+                            녹색대전환 국제주간 홍보
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/korad/board/view.do?manage_idx=22&board_idx=1331582&menu_idx=54"
+                           title="2026년 상반기 고준위방폐물 관리 분야 이해관계자 소통 역량 확보를 위한 종사자 교육 안내">
+                            2026년 상반기 고준위방폐물 관리 분야 이해관계자 소통 역량 확보를 위한 종사자 교육 안내
+                        </a>
+                    </li>
+                
+                    <li>
+                        <a href="/korad/board/view.do?manage_idx=22&board_idx=1331579&menu_idx=54"
+                           title="대한민국 기후위기 진단 토론회 안내">
+                            대한민국 기후위기 진단 토론회 안내
+                        </a>
+                    </li>
+                
+                
+            </ul>
+            <a href="/korad/board/index.do?menu_idx=54&manage_idx=22" class="body_notice_btn" title="공지사항 더보기">
+                <img src="/resources/homepage/korad/img/main_more.png" alt="plus">
+            </a>
+        </div>
+        <div class="body_notice korad-navi-bn">
+            <div class="inner">
+                <p class="stitle">지원자 중심 플랫폼</p>
+                <h2 class="title">KORAD NAVI</h2>
+                <p class="des">당신을 위한 채용정보를<br>안내해 드립니다.</p>
+            </div>
+            <a href="/korad/html.do?menu_idx=432" class="body_notice_btn" title="공지사항 더보기">
+                <img alt="plus" class="lazy" data-src="/resources/homepage/korad/img/main_more.png" src="/resources/homepage/korad/img/main_more.png">
+            </a>
+        </div>
+    </section>
+
+    <iframe class="main__briefing" src="https://www.korea.kr/etc/news_widget.do?svrId=JFJ9ePDIDGJ000" title="정책브리핑 뉴스 위젯" allowfullscreen scrolling="no"></iframe>
+
+    <section class="main__service__wrapper">
+        <a href="/korad/html.do?menu_idx=100" title="바로가기">
+            <strong>경영공시</strong>
+            <img src="/resources/homepage/korad/img/icon_1.png" alt="경영공시">
+        </a>
+        <a href="/korad/html.do?menu_idx=206" title="바로가기">
+            <strong>정보공개</strong>
+            <img src="/resources/homepage/korad/img/icon_2.png" alt="정보공개">
+        </a>
+        <a href="/korad/html.do?menu_idx=135" title="바로가기">
+            <strong>기금정보</strong>
+            <img src="/resources/homepage/korad/img/icon_3.png" alt="기금정보">
+        </a>
+        <a href="https://www.g2b.go.kr/link//FIUA006_01/single/?untySrchSeCd=BK+BUK&rowCnt=&instCd=B553023&demaInstNm=&hghrkInstCd=&prcmBsneAreaCd=%EC%A0%84%EC%B2%B4+%EC%A1%B0070001+%EC%A1%B0070002+%EC%A1%B0070003+%EC%A1%B0070004+%EC%A1%B0070005&prcmMthoSeCd=&frcpYn=N&laseYn=N&rsrvYn=N&chkInstCd=&urlSrchSeCd=instCd&demaInstCd=IN0100000062862&prcmMaagSeCd="
+           target="_blank" title="입찰정보 새창열기">
+            <strong>입찰정보</strong>
+            <img src="/resources/homepage/korad/img/icon_4.png" alt="입찰정보">
+        </a>
+        <a href="/korad/board/index.do?menu_idx=57&manage_idx=25" title="새창열기">
+            <strong>공급업체등록</strong>
+            <img src="/resources/homepage/korad/img/icon_5.png" alt="공급업체등록">
+        </a>
+    </section>
+
+    <section class="main__esg">
+        <h2 class="main__esg__title">주요사업 및 환경·사회·투명 경영</h2>
+        <div class="main__esg__items">
+            <a href="/korad/html.do?menu_idx=150" title="바로가기">
+                <strong class="main__esg__item__1">
+                    <span>
+                        <em>중저준위 방폐물 관리사업</em>
+                    </span>
+                </strong>
+            </a>
+            <a href="/korad/html.do?menu_idx=144" title="바로가기">
+                <strong class="main__esg__item__2">
+                    <span>
+                        <em>고준위 방폐물 관리사업</em>
+                    </span>
+                </strong>
+            </a>
+            <a href="/korad/html.do?menu_idx=217" title="바로가기">
+                <strong class="main__esg__item__3">
+                    <span>
+                        <em>환경·사회·투명 경영</em>
+                    </span>
+                </strong>
+            </a>
+        </div>
+    </section>
+
+    <section class="body__news">
+        <h2 class="body__news__title">KORAD 소식</h2>
+        <div class="body__news__box">
+            <div class="body__sns">
+                <a href="https://www.youtube.com/user/yeskorad" title="유튜브" target="_blank" class="body_banner_btn">
+                    <img src="/resources/homepage/korad/img/youtube.png" alt="유튜브">
+                    <strong>유튜브</strong>
+                </a>
+                <a href="https://www.instagram.com/yeskorad/" title="인스타그램" target="_blank" class="body_banner_btn">
+                    <img src="/resources/homepage/korad/img/instagram.png" alt="인스타그램">
+                    <strong>인스타그램</strong>
+                </a>
+                <a href="https://blog.naver.com/yeskrmc" title="네이버블로그" target="_blank" class="body_banner_btn">
+                    <img src="/resources/homepage/korad/img/naver.png" alt="네이버블로그">
+                    <strong>블로그</strong>
+                </a>
+                <a href="https://www.facebook.com/YesKORAD" title="페이스북" target="_blank" class="body_banner_btn">
+                    <img src="/resources/homepage/korad/img/facebook.png" alt="페이스북">
+                    <strong>페이스북</strong>
+                </a>
+                <a href="https://pf.kakao.com/_xgyEed" title="카카오톡" target="_blank" class="body_banner_btn">
+                    <img src="/resources/homepage/korad/img/kakaotalk.png" alt="카카오톡">
+                    <strong>카카오톡</strong>
+                </a>
+                <a href="https://korad.me.kr/kr/main.php" title="국민소통플랫폼" target="_blank" class="body_banner_btn">
+                    <img src="/resources/homepage/korad/img/korad_platform.png" alt="국민소통플랫폼">
+                    <strong>국민소통<br>플랫폼</strong>
+                </a>
+            </div>
+            <div class="body__video">
+                <a href="https://www.youtube.com/watch?v=YoPcivTuppo" target="_blank" rel="noopener noreferrer" title="[헤이! AI코라] 방사능 Zero! 지하 연구시설(URL)의 모든 것">
+                    <img src="https://img.youtube.com/vi/YoPcivTuppo/mqdefault.jpg" alt="[헤이! AI코라] 방사능 Zero! 지하 연구시설(URL)의 모든 것">
+                    <p>[헤이! AI코라] 방사능 Zero! 지하 연구시설(URL)의 모든 것</p>
+                </a>
+
+                <a href="https://www.youtube.com/watch?v=2_qFIPDaP2I" target="_blank" rel="noopener noreferrer" title="따뜻한 마음이 더해져 더욱 따뜻한 경주의 겨울! 2025년 KORAD 따뜻한 겨울나기 사랑나눔 행사💚">
+                    <img src="https://img.youtube.com/vi/2_qFIPDaP2I/mqdefault.jpg" alt="따뜻한 마음이 더해져 더욱 따뜻한 경주의 겨울! 2025년 KORAD 따뜻한 겨울나기 사랑나눔 행사💚">
+                    <p>따뜻한 마음이 더해져 더욱 따뜻한 경주의 겨울! 2025년 KORAD 따뜻한 겨울나기 사랑나눔 행사💚</p>
+                </a>
+
+                <a href="https://www.youtube.com/watch?v=mc8HgotGYqE" target="_blank" rel="noopener noreferrer" title="방폐물 핵종분석 결과 검증은 우리에게 맡겨라! 방폐물 분석센터 준공식 현장속으로!">
+                    <img src="https://img.youtube.com/vi/mc8HgotGYqE/mqdefault.jpg" alt="방폐물 핵종분석 결과 검증은 우리에게 맡겨라! 방폐물 분석센터 준공식 현장속으로!">
+                    <p>방폐물 핵종분석 결과 검증은 우리에게 맡겨라! 방폐물 분석센터 준공식 현장속으로!</p>
+                </a>
+
+                <a href="https://www.youtube.com/watch?v=VWM7nAMzrmg" target="_blank" rel="noopener noreferrer" title="방폐물의 안전한 관리! 안전한 미래로! 2025 추계 학술발표회 현장속으로! 2편">
+                    <img src="https://img.youtube.com/vi/VWM7nAMzrmg/mqdefault.jpg" alt="방폐물의 안전한 관리! 안전한 미래로! 2025 추계 학술발표회 현장속으로! 2편">
+                    <p>방폐물의 안전한 관리! 안전한 미래로! 2025 추계 학술발표회 현장속으로! 2편</p>
+                </a>
+            </div>
+            <div class="body__magazine">
+                <a href="/korad/board/index.do?menu_idx=220&manage_idx=78" title="바로가기">
+                    <span>
+                        <img src="/resources/homepage/korad/img/news_4.jpg" alt="청정누리">
+                    </span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+
+<div id="footer">
+    
+
+
+
+
+		<div class="footer__container">
+			<section class="footer__menu1" style="width: 210px;">
+				<h2 class="mtt2">관련사이트</h2>
+				<ul>
+					<li><a href="https://www.mcee.go.kr/home/web/main.do" target="_blank" title="새창열림">기후에너지환경부</a></li>
+					<li><a href="https://www.hrwc.go.kr/" target="_blank" title="새창열림">고준위방사성폐기물관리위원회</a></li>
+					<li><a href="https://www.msit.go.kr/index.do" target="_blank" title="새창열림">과학기술정보통신부</a></li>
+					<li><a href="http://www.gyeongju.go.kr" target="_blank" title="새창열림">경주시</a></li>
+					<li><a href="http://nssc.go.kr" target="_blank" title="새창열림">원자력안전위원회</a></li>
+					<li><a href="http://www.kaeri.re.kr/" target="_blank" title="새창열림">한국원자력연구원</a></li>
+				</ul>
+			</section>
+			
+			<section class="footer__menu2">
+				<h2 class="mtt2">
+					<span class="blind">관련사이트</span>
+				</h2>
+				<ul>
+					<li><a href="http://www.kins.re.kr/" target="_blank" title="새창열림">한국원자력안전기술원</a></li>
+					<li><a href="http://www.khnp.co.kr/" target="_blank" title="새창열림">한국수력원자력</a></li>
+					<li><a href="https://www.keia.or.kr/main/main.php" target="_blank" title="새창열림">한국에너지정보문화재단</a></li>
+					<li><a href="http://www.kns.org/" target="_blank" title="새창열림">한국원자력학회</a></li>
+					<li><a href="http://www.krs.or.kr/" target="_blank" title="새창열림">한국방사성폐기물학회</a></li>
+					<li><a href="https://karp.or.kr/" target="_blank" title="새창열림">대한방사선방어학회</a></li>
+				</ul>
+			</section>
+			
+			<section class="footer__menu3">
+				<h2 class="mtt2">이용안내</h2>
+				<ul>
+					<li><a href="/korad/html.do?menu_idx=202" title="이메일주소무단수집거부">이메일주소무단수집거부</a></li>
+					<li><a href="/korad/html.do?menu_idx=389" title="개인정보처리방침"><b>개인정보처리방침</b></a></li>
+					<!-- <li><a href="/korad/board/index.do?&menu_idx=62&manage_idx=66" title="사보신청">사보신청</a></li> -->
+					<li><a href="/korad/html.do?menu_idx=229" title="오시는길">오시는길</a></li>
+					<li><a href="/korad/html.do?menu_idx=204" title="영상정보처리기기 운영·관리방침">영상정보처리기기 운영·관리방침</a></li>
+				</ul>
+			</section>
+			
+			<div class="footer__banner__wrapper main5-right-box">
+			</div>
+		</div>
+		
+		<hr />
+		
+		<div class="footer__container">
+			<section class="footer__address">
+				<dl>
+					<dt class="skip">한국원자력환경공단 주소</dt>
+					<dd>[38062] 경상북도 경주시 충효천길 19 (서악동) | 대표전화 054-750-4114<br>CopyrightⒸ2018 KORAD. All Rights Reserved</dd>
+				</dl>
+			</section>
+
+			<section class="footer__location">
+				<label for="locationSite">타기관 및 유관사이트 선택</label>
+				<select class="site_select" id="locationSite" title="타기관 및 유관사이트 선택">
+					<option value="" style="text-align: center">타기관 및 유관사이트 바로가기</option>
+					
+						<option value="https://www.mcee.go.kr/home/web/main.do" title="새창열림">기후에너지환경부</option>
+					
+						<option value="https://www.hrwc.go.kr/" title="새창열림">고준위방사성폐기물관리위원회</option>
+					
+						<option value="https://www.msit.go.kr/index.do" title="새창열림">과학기술정보통신부</option>
+					
+						<option value="http://www.gyeongju.go.kr" title="새창열림">경주시</option>
+					
+						<option value="http://nssc.go.kr" title="새창열림">원자력안전위원회</option>
+					
+						<option value="http://www.kaeri.re.kr" title="새창열림">한국원자력연구원</option>
+					
+						<option value="http://www.kins.re.kr/" title="새창열림">한국원자력안전기술원</option>
+					
+						<option value="http://www.khnp.co.kr" title="새창열림">한국수력원자력</option>
+					
+						<option value="https://www.keia.or.kr/main/main.php" title="새창열림">한국에너지정보문화재단</option>
+					
+						<option value="http://www.kns.org" title="새창열림">한국원자력학회</option>
+					
+						<option value="http://www.krs.or.kr" title="새창열림">한국방사성폐기물학회</option>
+					
+						<option value="https://karp.or.kr" title="새창열림">대한방사선방어학회</option>
+					
+				</select>
+				<a href="#" id="locationSiteBtn" class="site_btn" title="새창열기">이동</a>
+			</section>
+			
+			<section class="footer__waMark">
+				<a href="http://www.wa.or.kr/board/list.asp?search=total&SearchString=%C7%D1%B1%B9%BF%F8%C0%DA%B7%C2%C8%AF%B0%E6%B0%F8%B4%DC&BoardID=0006" title="새창열기" target="_blank">
+					<img src="/resources/homepage/korad/img/footer_wa_mark.png" alt="(사)한국장애인단체총연합회 한국웹접근성 웹 접근성 우수사이트 인증마크(WA인증마크)" />
+				</a>
+			</section>
+			
+			<!--
+			<section class="snsLink">
+				<ul>
+					<li><a href="https://www.youtube.com/user/yeskorad" title="한국원자력환경공단 유뷰브 바로가기" target="_blank"><img src="/resources/homepage/korad/img/bt_youtube.png" alt="유튜브" /></a></li>
+					<li><a href="https://www.facebook.com/YesKORAD" title="원자력환경공단 페이스북 바로가기" target="_blank"><img src="/resources/homepage/korad/img/icon_facebook.png" alt="페이스북" /></a></li>
+					<li><a href="https://post.naver.com/my.nhn?memberNo=1099920" title="원자력환경공단 포스트 바로가기" target="_blank"><img src="/resources/homepage/korad/img/bt_post.gif" alt="포스트" /></a></li>
+					<li><a href="http://blog.korad.or.kr/" title="원자력환경공단 블로그 바로가기" target="_blank"><img src="/resources/homepage/korad/img/icon_blog.png" alt="네이버블로그" /></a></li>
+					<li><a href="https://www.instagram.com/yeskorad/" title="원자력환경공단 인스타그램 바로가기" target="_blank"><img src="/resources/homepage/korad/img/icon_instagram.png" alt="인스타그램" /></a></li>
+				</ul>
+			</section>
+			-->
+		</div>
+		
+		
+
+			
+
+</div>
+</body>
+</html>
