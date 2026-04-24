@@ -19,12 +19,13 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Philosophy', href: '#philosophy' },
   { label: 'Products', href: '#products' },
   { label: 'Solutions', href: '#solutions' },
+  { label: 'R&D Highlights', href: '#rnd-highlights' },
   { label: 'Team', href: '#team' },
   { label: 'Contact', href: '#contact' },
 ];
 
 export const PHILOSOPHY = {
-  title: 'Problem Statement & Solution',
+  title: 'Our Philosophy and Approach',
   problems: [
     {
       title: "Limitations of 'Show-off' AI",

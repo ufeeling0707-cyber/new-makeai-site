@@ -7,6 +7,7 @@ import krLogo from '../assets/customer-logos/한국선급.png';
 import lgElectronicsLogo from '../assets/customer-logos/LG전자.png';
 import lgInnotekLogo from '../assets/customer-logos/LG이노텍.png';
 import mobisLogo from '../assets/customer-logos/모비스.png';
+import samsungLifeLogo from '../assets/customer-logos/삼성생명.png';
 
 const engineModules = [
   {
@@ -234,12 +235,15 @@ const Engines: React.FC = () => {
 
         <div className="mt-10 rounded-2xl border border-white/10 bg-[#06090d] p-6 shadow-[0_20px_80px_rgba(0,0,0,0.4)] md:p-8">
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white">
-              <img
-                src="/images/product-lam.png"
-                alt="Make LAM architecture"
-                className="h-full w-full object-cover"
-              />
+            <div>
+              <LogoStrip logos={[{ name: '삼성생명', src: samsungLifeLogo }]} />
+              <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-white">
+                <img
+                  src="/images/product-lam.png"
+                  alt="Make LAM architecture"
+                  className="h-full w-full object-cover"
+                />
+              </div>
             </div>
 
             <div>

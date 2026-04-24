@@ -3,6 +3,7 @@ import Hero from './components/Hero';
 import Philosophy from './components/Philosophy';
 import Engines from './components/Engines';
 import Products from './components/Products';
+import RndHighlights from './components/RndHighlights';
 import Team from './components/Team';
 import Footer from './components/Footer';
 
@@ -15,6 +16,7 @@ function App() {
         <Philosophy />
         <Engines />
         <Products />
+        <RndHighlights />
         <Team />
       </main>
       <Footer />
