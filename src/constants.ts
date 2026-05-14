@@ -139,7 +139,7 @@ export const TEAM: TeamMember[] = [
     role: 'Principal AI Scientist',
     description: ['서울대학교 수학과 학사', 'Florida State Univ. 석사 (Neural Network)', 'Neutopia AI Engine 개발'],
     imageUrl: '/images/ChoiBumKi.png',
-  },
+  }
 ];
 
 export const CONTACT: ContactInfo = {
