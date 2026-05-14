@@ -134,13 +134,6 @@ export const TEAM: TeamMember[] = [
     imageUrl: '/images/ChoJungHo.png',
   },
   {
-    id: 'cto',
-    name: '강경훈',
-    role: 'CTO, PhD',
-    description: ['서울대 산업공학과 학사/석사', '고려대학교 산업공학과 박사', 'Ernst & Young 이사', '상명대학교 교수', '삼성 구조조정본부 B2Bi팀장'],
-    imageUrl: '/images/KangKyungHoon.png',
-  },
-  {
     id: 'scientist',
     name: '최범기',
     role: 'Principal AI Scientist',
